@@ -1,0 +1,36 @@
+doctype html
+html
+  head
+    // Set viewport metadata for better display on mobile devices
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title= title
+    link(rel="stylesheet", href='/bootstrap/css/amelia.bootstrap.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+  body
+    // Set up a Bootstrap navigation bar fixed to top of window
+    .navbar.navbar-default.navbar-fixed-top
+      .container
+        .navbar-header
+          // Add a brand-styled link to homepage
+          a.navbar-brand(href='/') Loc8r
+            // Set up collapsing navigation for smaller screen resolutions
+            button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-main')
+              span.icon-bar
+              span.icon-bar
+              span.icon-bar
+        #navbar-main.navbar-collapse.collapse
+          // Add About link to left side of bar
+          ul.nav.navbar-nav
+            li
+              a(href='/about/') About
+    // Extendable content block now wrapped in a container div
+    .container
+      block content
+
+      // Simple copyright footer in same container as content block
+      footer
+        .row
+          .col-xs-12
+            small &copy; Simon Holmes 2016
+    script(src='/javascripts/jquery-1.12.0.min.js')
+    script(src='/bootstrap/js/bootstrap.min.js')

@@ -1,0 +1,49 @@
+// Informs that this file is extending layout file
+extends layout
+
+include _includes/sharedHTMLfunctions
+
+// Page header that fills entire width, containing a column that limits
+// text width to 6 columns on large screens for readability
+block content
+  // Start header area
+  #banner.page-header
+    .row
+      .col-lg-6
+        // '=' signifies that following content is buffered code, in this case a JavaScript object
+        h1=pageHeader.title
+          // #{} delimiters are used to insert data into a specific place, like part of a piece of text Licensed to
+          small &nbsp; #{pageHeader.strapline}
+  // Set up a Bootstrap list group and create a single item spanning full 12 columns
+  .row
+    // Start responsive main listing column section
+    // Container for list of locations, spanning all 12 columns
+    // on extra-small devices and 8 columns on small devices and larger
+    .col-xs-12.col-sm-8
+      // Set up loop, defining variable location as key
+      .row.list-group
+        // Nested items are all looped through
+        each location in locations
+          // An individual listing; duplicate this section to create list of multiple items
+          .col-xs-12.list-group-item
+            h4
+              // Output name of each location, accessing the name property of each location
+              a(href="/location")= location.name
+              small &nbsp;
+                // Call outputRating mixin for each location, passing value of current location’s rating
+                +outputRating(location.rating)
+              // Use Bootstrap’s badge helper class to hold distance away
+              span.badge.pull-right.badge-default= location.distance
+            // Address of location
+            p.address= location.address
+            // Facilities of location, output using Bootstrap’s label classes
+            p
+              // Looping through a nested array to output facilities for each location
+              each facility in location.facilities
+                span.label.label-warning= facility
+                | &nbsp;
+    // Container for secondary or sidebar information, spanning all 12
+    // columns on extra-small devices and 4 columns on small devices and larger
+    .col-xs-12.col-sm-4
+      // Reference sidebar content from controller
+      p.lead= sidebar

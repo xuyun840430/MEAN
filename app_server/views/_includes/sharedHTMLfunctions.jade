@@ -1,0 +1,10 @@
+//
+   Created by Information on 2016/1/26.
+
+// Define mixin outputRating expecting a single parameter rating
+mixin outputRating(rating)
+  //Use rating parameter inside for loops to output correct HTML
+  -for (var i = 1; i <= rating; i++)
+    span.glyphicon.glyphicon-star
+  -for (var i = rating; i < 5; i++)
+    span.glyphicon.glyphicon-star-empty

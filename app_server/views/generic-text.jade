@@ -1,0 +1,13 @@
+//
+   Created by Information on 2016/1/25.
+extends layout
+
+block content
+  #banner.page-header
+    .row
+      .col-md-6.col-sm-12
+        h1= title
+  .row
+    .col-md-6.col-sm-12
+      // Replace all line breaks with <br/> tags when rendering HTML
+      p !{(content).replace(/\n/g, '<br/>')}
