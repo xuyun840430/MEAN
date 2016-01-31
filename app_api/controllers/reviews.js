@@ -28,10 +28,6 @@ module.exports.reviewsReadOne = function (req, res) {
           return;
         }
 
-        // Test results
-        //console.log(location.reviews);
-        //console.log(req.params.reviewid);
-
         if (location.reviews && location.reviews.length > 0) {
           review = location.reviews.id(req.params.reviewid);
           if (!review) {
