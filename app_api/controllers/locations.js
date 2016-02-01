@@ -135,8 +135,30 @@ module.exports.locationsUpdateOne = function (req, res) {
     });
 };
 
+/**
+ * Delete one location in mongo DB
+ * @param req
+ * @param res
+ */
 module.exports.locationsDeleteOne = function (req, res) {
-  sendJsonResponse(res, 200, {"status" : "success"});
+  var locationid = req.params.locationid;
+  if (locationid) {
+    Loc
+      .findOneAndRemove({_id : locationid}) // Call findOneAndRemove() method, passing in locationid
+      .exec(
+        function (err, location) {
+          if (err) {
+            sendJsonResponse(res, 404, err);
+            return;
+          }
+          sendJsonResponse(res, 204, null);
+        }
+      );
+  } else {
+    sendJsonResponse(res, 404, {
+      "message": "No locationid"
+    });
+  }
 };
 
 // Utility function that accepts response object, a status code, and a data object

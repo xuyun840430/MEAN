@@ -216,7 +216,54 @@ module.exports.reviewsUpdateOne = function (req, res) {
 };
 
 module.exports.reviewsDeleteOne = function (req, res) {
-  sendJsonResponse(res, 200, {"status" : "success"});
+  if (!req.params.locationid || !req.params.reviewid) {
+    sendJsonResponse(res, 404, {
+      "message": "Not found, locationid and reviewid are both required"
+    });
+    return;
+  }
+
+  // Find relevant parent document
+  Loc
+    .findOne({_id : req.params.locationid})
+    .select('reviews')
+    .exec(
+      function(err, location) {
+        if (!location) {
+          sendJsonResponse(res, 404, {
+            "message": "locationid not found"
+          });
+          return;
+        } else if (err) {
+          sendJsonResponse(res, 400, err);
+          return;
+        }
+        if (location.reviews && location.reviews.length > 0) {
+          if (!location.reviews.id(req.params.reviewid)) {
+            sendJsonResponse(res, 404, {
+              "message": "reviewid not found"
+            });
+          } else {
+            // Find and delete relevant subdocument in one step
+            location.reviews.id(req.params.reviewid).remove();
+            // Save parent document
+            location.save(function(err) {
+              // Return appropriate success or failure response
+              if (err) {
+                sendJsonResponse(res, 404, err);
+              } else {
+                updateAverageRating(location._id);
+                sendJsonResponse(res, 204, null);
+              }
+            });
+          }
+        } else {
+          sendJsonResponse(res, 404, {
+            "message": "No review to delete"
+          });
+        }
+      }
+    );
 };
 
 // Utility function that accepts response object, a status code, and a data object
