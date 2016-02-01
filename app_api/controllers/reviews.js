@@ -14,7 +14,7 @@ module.exports.reviewsReadOne = function (req, res) {
   if (req.params && req.params.locationid && req.params.reviewid) {
     Loc
       .findOne({_id : req.params.locationid})
-      .select('name reviews')
+      .select('name reviews') // Get name of location and its reviews from mongoose model query
       .exec(function (err, location) {
         var response, review;
 
@@ -28,13 +28,16 @@ module.exports.reviewsReadOne = function (req, res) {
           return;
         }
 
+        // Check that returned location has reviews
         if (location.reviews && location.reviews.length > 0) {
+          // Use Mongoose subdocument .id method as a helper for searching for "_id" field in DB
           review = location.reviews.id(req.params.reviewid);
           if (!review) {
             sendJsonResponse(res, 404, {
               "message": "reviewid not found"
             });
           } else {
+            // If review is found build response object returning review and location name and ID
             response = {
               location: {
                 name: location.name,
@@ -45,6 +48,7 @@ module.exports.reviewsReadOne = function (req, res) {
             sendJsonResponse(res, 200, response);
           }
         } else {
+          // If no reviews are found return an appropriate error message
           sendJsonResponse(res, 404, {
             "message": "No reviews found"
           });

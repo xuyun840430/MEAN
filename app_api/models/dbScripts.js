@@ -25,3 +25,7 @@ db.locations.update({
     }
   }
 })
+
+/**
+ * Heroku URL: https://mighty-meadow-29112.herokuapp.com/
+ */

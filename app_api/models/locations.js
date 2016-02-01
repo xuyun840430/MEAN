@@ -31,7 +31,7 @@ var locationSchema = new mongoose.Schema({
   address: String,
   rating: {type: Number, "default": 0, min: 0, max:5},
   facilities: [String], // Declare an array of same schema type by declaring that type inside square brackets
-  coords: {type: [Number], index: '2dsphere'}, // Use 2dsphere to add support for GeoJSON longitude and latitude coordinate pairs
+  coords: {type: [Number], index: '2dsphere', required: true}, // Use 2dsphere to add support for GeoJSON longitude and latitude coordinate pairs
   openingTimes: [openingTimeSchema], // Add nested schema by referencing another schema object as an array
   reviews: [reviewSchema] // Reference reviews schemas to add nested subdocuments
 });

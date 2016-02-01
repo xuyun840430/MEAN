@@ -6,12 +6,44 @@ var mongoose = require('mongoose');
 var Loc = mongoose.model('Location');
 
 module.exports.locationsListByDistance = function (req, res) {
-  sendJsonResponse(res, 200, {"status" : "success"});
+  // Get coordinates from query string and convert from strings to numbers
+  var lng = parseFloat(req.query.lng);
+  var lat = parseFloat(req.query.lat);
+  // Create geoJson point
+  var point = {
+    type: "Point",
+    coordinates: [lng, lat]
+  };
+  // Send point as first parameter in geoNear method
+  Loc.geoNear(point, options, callback);
 };
 
 module.exports.locationsCreate = function (req, res) {
-  // Calling new function from each controller function
-  sendJsonResponse(res, 200, {"status" : "success"});
+  // Apply create method to model
+  Loc.create({
+    name: req.body.name,
+    address: req.body.address,
+    facilities: req.body.facilities.split(","), // Create array of facilities by splitting a comma separated list
+    coords: [parseFloat(req.body.lng), parseFloat(req.body.lat)], // Parse coordinates from strings to numbers
+    openingTimes: [{
+      days: req.body.days1,
+      opening: req.body.opening1,
+      closing: req.body.closing1,
+      closed: req.body.closed1,
+    }, {
+      days: req.body.days2,
+      opening: req.body.opening2,
+      closing: req.body.closing2,
+      closed: req.body.closed2,
+    }]
+  }, function (err, location) { // Supply callback function, containing appropriate responses for success and failure
+    if (err) {
+      sendJsonResponse(res, 400, err);
+    } else {
+      sendJsonResponse(res, 201, location);
+    }
+  });
+
 };
 
 module.exports.locationsReadOne = function (req, res) {
