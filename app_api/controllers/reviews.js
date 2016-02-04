@@ -215,6 +215,11 @@ module.exports.reviewsUpdateOne = function (req, res) {
     );
 };
 
+/**
+ * Delete subdocument review from mongoDB
+ * @param req
+ * @param res
+ */
 module.exports.reviewsDeleteOne = function (req, res) {
   if (!req.params.locationid || !req.params.reviewid) {
     sendJsonResponse(res, 404, {

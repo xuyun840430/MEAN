@@ -20,6 +20,8 @@ block content
     // Container for list of locations, spanning all 12 columns
     // on extra-small devices and 8 columns on small devices and larger
     .col-xs-12.col-sm-8
+      // Add a div into main content area and have it display a message if one is sent
+      .error= message
       // Set up loop, defining variable location as key
       .row.list-group
         // Nested items are all looped through

@@ -5,19 +5,83 @@
 var mongoose = require('mongoose');
 var Loc = mongoose.model('Location');
 
-module.exports.locationsListByDistance = function (req, res) {
-  // Get coordinates from query string and convert from strings to numbers
+/**
+ * locationsListByDistance
+ * @param req
+ * @param res
+ */
+module.exports.locationsListByDistance = function(req, res) {
   var lng = parseFloat(req.query.lng);
   var lat = parseFloat(req.query.lat);
-  // Create geoJson point
+  var maxDistance = parseFloat(req.query.maxDistance);
   var point = {
     type: "Point",
     coordinates: [lng, lat]
   };
-  // Send point as first parameter in geoNear method
-  Loc.geoNear(point, options, callback);
+  var geoOptions = {
+    spherical: true,
+    maxDistance: theEarth.getRadsFromDistance(maxDistance),
+    num: 10
+  };
+  if ((!lng && lng!==0) || (!lat && lat!==0) || ! maxDistance) {
+    console.log('locationsListByDistance missing params');
+    sendJsonResponse(res, 404, {
+      "message": "lng, lat and maxDistance query parameters are all required"
+    });
+    return;
+  }
+  // Get results from mongoDB appending on GeoJSON longitude and latitude coordinate pairs
+  Loc.geoNear(point, geoOptions, function(err, results, stats) {
+    var locations;
+    console.log('Geo Results', results);
+    console.log('Geo stats', stats);
+    if (err) {
+      console.log('geoNear error:', err);
+      sendJsonResponse(res, 404, err);
+    } else {
+      locations = buildLocationList(req, res, results, stats);
+      sendJsonResponse(res, 200, locations);
+    }
+  });
 };
 
+var theEarth = (function() {
+  var earthRadius = 6371; // km, miles is 3959
+
+  var getDistanceFromRads = function(rads) {
+    return parseFloat(rads * earthRadius);
+  };
+
+  var getRadsFromDistance = function(distance) {
+    return parseFloat(distance / earthRadius);
+  };
+
+  return {
+    getDistanceFromRads: getDistanceFromRads,
+    getRadsFromDistance: getRadsFromDistance
+  };
+})();
+
+var buildLocationList = function(req, res, results, stats) {
+  var locations = [];
+  results.forEach(function(doc) {
+    locations.push({
+      distance: theEarth.getDistanceFromRads(doc.dis),
+      name: doc.obj.name,
+      address: doc.obj.address,
+      rating: doc.obj.rating,
+      facilities: doc.obj.facilities,
+      _id: doc.obj._id
+    });
+  });
+  return locations;
+};
+
+/**
+ * locationsCreate
+ * @param req
+ * @param res
+ */
 module.exports.locationsCreate = function (req, res) {
   // Apply create method to model
   Loc.create({
