@@ -7,7 +7,7 @@ var ctrlOthers = require('../controllers/others');
 
 /* Location pages */
 router.get('/', ctrlLocations.homelist);
-router.get('/location', ctrlLocations.locationInfo);
+router.get('/location/:locationid', ctrlLocations.locationInfo); // Add locationid parameter to route for single location
 router.get('/location/review/new', ctrlLocations.addReview);
 
 /* Other pages */

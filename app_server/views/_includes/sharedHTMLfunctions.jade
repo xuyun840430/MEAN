@@ -8,3 +8,16 @@ mixin outputRating(rating)
     span.glyphicon.glyphicon-star
   -for (var i = rating; i < 5; i++)
     span.glyphicon.glyphicon-star-empty
+
+// Define mixin to format date info
+mixin formatDate(dataString)
+  // Convert date provided from string to date object
+  -var date = new Date(dataString);
+  // Set up array of values for names of months
+  -var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  // Use JavaScript data methods to extract and convert required parts of date
+  -var d = date.getDate();
+  -var m = monthNames[date.getMonth()];
+  -var y = date.getFullYear();
+  -var output = d + ' ' + m + ' ' +y; // Put parts back together in desired format and render output
+  =output

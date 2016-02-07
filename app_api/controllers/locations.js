@@ -23,7 +23,7 @@ module.exports.locationsListByDistance = function(req, res) {
     maxDistance: theEarth.getRadsFromDistance(maxDistance),
     num: 10
   };
-  if ((!lng && lng!==0) || (!lat && lat!==0) || ! maxDistance) {
+  if ((!lng && lng !== 0) || (!lat && lat !== 0) || !maxDistance) {
     console.log('locationsListByDistance missing params');
     sendJsonResponse(res, 404, {
       "message": "lng, lat and maxDistance query parameters are all required"
@@ -71,7 +71,7 @@ var buildLocationList = function(req, res, results, stats) {
       address: doc.obj.address,
       rating: doc.obj.rating,
       facilities: doc.obj.facilities,
-      _id: doc.obj._id
+      _id: doc.obj._id // Passing '_id' back for query locations
     });
   });
   return locations;

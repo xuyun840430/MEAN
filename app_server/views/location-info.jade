@@ -8,7 +8,7 @@ block content
   // Start with page header
   .row.page-header
     .col-lg-12
-      h1= pageHeader.title
+      h1= title
   .row
     // Set up nested responsive columns needed for template
     .col-xs-12.col-md-9
@@ -22,7 +22,7 @@ block content
             .panel-heading
               h2.panel-title Opening Hours
             .panel-body
-              each time in location.openingTime
+              each time in location.openingTimes
                 p
                   | #{time.days}
                   if time.closed
@@ -60,7 +60,9 @@ block content
                       span.rating
                         +outputRating(review.rating)
                       span.reviewAuthor #{review.author}
-                      small.reviewTimestamp #{review.timestamp}
+                      small.reviewTimestamp
+                        // Call mixin from its own line, passing creation date of review
+                        +formatDate(review.createdOn)
                     .col-xs-12
                       p !{review.reviewText.replace(/\n/g, '<br/>')}
     // Final responsive column for sidebar contextual information

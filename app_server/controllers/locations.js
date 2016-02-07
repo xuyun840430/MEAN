@@ -35,9 +35,14 @@ module.exports.homelist = function (req, res) {
     method: "GET",
     json: {},
     qs: {
-      lng: -0.7992599,
+      lng : -0.7992599,
       lat : 51.378091,
       maxDistance: 20
+
+      // Change query string values sent in request to get no results returned
+      //lng: 1,
+      //lat: 1,
+      //maxDistance: 0.002
     }
   };
 
@@ -129,51 +134,91 @@ var renderHomepage = function (req, res, responseBody) {
   });
 };
 
-/* Get 'Location info' page */
+/**
+ * Get 'Location info' page, show the location details
+ * @param req
+ * @param res
+ */
 module.exports.locationInfo = function (req, res) {
+  var requestOptions, path;
+  // Get locationid parameter from URL and append it to API path
+  path = "/api/locations/" + req.params.locationid;
+
+  // Set all request options needed to call API
+  requestOptions = {
+    url: apiOptions.server + path,
+    method: "GET",
+    json: {}
+  };
+
+  // Send formatted request
+  request(
+    requestOptions,
+    function (err, response, body) {
+      // Create copy of returned data in new variable
+      var data = body;
+      // Reset coords property to be an object, setting lng and lat using values pulled from API response
+      data.coords = {
+        lng: body.coords[0],
+        lat: body.coords[1]
+      };
+
+      // Call renderDetailPage function when API has responded
+      renderDetailPage(req, res, data);
+    }
+  );
+};
+
+var renderDetailPage = function (req, res, locDetail) {
+
+  // Reference specific items of data as needed for render jade file 'location-info'
   res.render('location-info', {
-    title: 'Starups',
-    pageHeader: {title: 'Starcups'},
+    title: locDetail.name,
+    pageHeader: {title: locDetail.name},
     sidebar: {
       context: 'is on Loc8r because it has accessible wifi and space to sit ' +
       'down with your laptop and get some work done.',
       callToAction: 'If you\'ve been and you like it - or if you don\'t ' +
       'please leave a review to help other people just like you.'
     },
-    location: {
-      name: 'Starcups',
-      address: '125 High Street, Reading, RG6 1PS',
-      rating: 3,
-      facilities: ['Hot drinks', 'Food', 'Premium wifi'],
-      coords: {lat: 51.455041, lng: -0.9690884},
-      // Data for opening hours is held as an array of objects
-      openingTime: [{
-        days: 'Monday - Friday',
-        opening: '7:00am',
-        closing: '7:00pm',
-        closed: false
-      }, {
-        days: 'Saturday',
-        opening: '8:00am',
-        closing: '5:00pm',
-        closed: false
-      }, {
-        days: 'Sunday',
-        closed: true
-      }],
-      // Reviews are also passed to the view as array of objects
-      reviews: [{
-        author: 'Simon Holmes',
-        rating:5,
-        timestamp: '16 Jan 2016',
-        reviewText: 'What a great place. I can\'t say enough good things about it.'
-      }, {
-        author: 'Charlie Chaplin',
-        rating: 3,
-        timestamp: '5 Jan 2016',
-        reviewText: 'It was okay. Coffee wasn\'t great, but the wifi was fast.'
-      }]
-    }
+    // Pass full locDetail data object to view, containing all details
+    location: locDetail
+
+
+    //location: {
+    //  name: 'Starcups',
+    //  address: '125 High Street, Reading, RG6 1PS',
+    //  rating: 3,
+    //  facilities: ['Hot drinks', 'Food', 'Premium wifi'],
+    //  coords: {lat: 51.455041, lng: -0.9690884},
+    //  // Data for opening hours is held as an array of objects
+    //  openingTime: [{
+    //    days: 'Monday - Friday',
+    //    opening: '7:00am',
+    //    closing: '7:00pm',
+    //    closed: false
+    //  }, {
+    //    days: 'Saturday',
+    //    opening: '8:00am',
+    //    closing: '5:00pm',
+    //    closed: false
+    //  }, {
+    //    days: 'Sunday',
+    //    closed: true
+    //  }],
+    //  // Reviews are also passed to the view as array of objects
+    //  reviews: [{
+    //    author: 'Simon Holmes',
+    //    rating:5,
+    //    timestamp: '16 Jan 2016',
+    //    reviewText: 'What a great place. I can\'t say enough good things about it.'
+    //  }, {
+    //    author: 'Charlie Chaplin',
+    //    rating: 3,
+    //    timestamp: '5 Jan 2016',
+    //    reviewText: 'It was okay. Coffee wasn\'t great, but the wifi was fast.'
+    //  }]
+    //}
   });
 };
 

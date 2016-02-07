@@ -29,8 +29,9 @@ block content
           // An individual listing; duplicate this section to create list of multiple items
           .col-xs-12.list-group-item
             h4
-              // Output name of each location, accessing the name property of each location
-              a(href="/location")= location.name
+              // As each location in array is looped through, pull unique
+              // ID from object and append it to href for link to Details page
+              a(href="/location/#{location._id}")= location.name
               small &nbsp;
                 // Call outputRating mixin for each location, passing value of current location’s rating
                 +outputRating(location.rating)
