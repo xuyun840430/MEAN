@@ -42,7 +42,7 @@ var doAddReview = function (req, res, location) {
     });
   } else {
     // Push new data into subdocument array
-    location.reviews.push({
+    location.reviews.push({ // data is sent by request() from 'postdata' in "app_server/controllers/locations"
       author: req.body.author,
       rating: req.body.rating,
       reviewText: req.body.reviewText

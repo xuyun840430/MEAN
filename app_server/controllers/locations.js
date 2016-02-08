@@ -18,11 +18,11 @@ if (process.env.NODE_ENV === 'production') {
   apiOptions.server = "https://mighty-meadow-29112.herokuapp.com";
 }
 
-/* Get 'home' page (homepage) */
-//module.exports.homelist = function (req, res) {
-//  renderHomepage(req, res);
-//};
-
+/**
+ * Get homepage
+ * @param req
+ * @param res
+ */
 module.exports.homelist = function (req, res) {
   var requestOptions, path;
 
@@ -111,26 +111,26 @@ var renderHomepage = function (req, res, responseBody) {
     locations: responseBody,
     // Add message to variables to send to view
     message: message
+  });
+};
 
-    //locations: [{
-    //  name: 'Starups',
-    //  address: '125 High Street, Reading, RG6 2PS',
-    //  rating: 3,
-    //  facilities: ['Hot drinks', 'Food', 'Premium wifi'],
-    //  distance: '100m'
-    //}, {
-    //  name: 'Cafe Hero',
-    //  address: '125 High Street, Reading, RG6 5PS',
-    //  rating: 4,
-    //  facilities: ['Hot drinks', 'Food', 'Premium wifi'],
-    //  distance: '200m'
-    //}, {
-    //  name: 'Burger Queen',
-    //  address: '125 High Street, Reading, RG6 1PS',
-    //  rating: 2,
-    //  facilities: ['Food', 'Premium wifi'],
-    //  distance: '250m'
-    //}]
+
+var _showError = function (req, res, status) {
+  var title, content;
+
+  // If status passed through is 404, set title and content for page
+  if (status === 404) {
+    title = "404, page not found";
+    content = "Oh dear. Looks like we can't find this page. Sorry.";
+  } else { // Otherwise set a generic catch-all message
+    title = status + ", something's gone wrong";
+    content = "Something, somewhere, has gone just a little bit wrong.";
+  }
+  // Use status parameter to set response status
+  res.status(status);
+  res.render('generic-text', { // Send data to view to be compiled and sent to browser
+    title: title,
+    content: content
   });
 };
 
@@ -140,6 +140,16 @@ var renderHomepage = function (req, res, responseBody) {
  * @param res
  */
 module.exports.locationInfo = function (req, res) {
+  // In locationInfo controller call getLocationInfo function,
+  // passing a callback function  that will call renderDetailPage function upon completion
+  getLocationInfo(req, res, function (req, res, responseData) {
+    renderDetailPage(req, res, responseData);
+  });
+};
+
+// Function getLocationInfo accepts callback as third parameter and contains
+// all code that used to be in locationInfo controller
+var getLocationInfo = function (req, res, callback) {
   var requestOptions, path;
   // Get locationid parameter from URL and append it to API path
   path = "/api/locations/" + req.params.locationid;
@@ -157,20 +167,24 @@ module.exports.locationInfo = function (req, res) {
     function (err, response, body) {
       // Create copy of returned data in new variable
       var data = body;
-      // Reset coords property to be an object, setting lng and lat using values pulled from API response
-      data.coords = {
-        lng: body.coords[0],
-        lat: body.coords[1]
-      };
-
-      // Call renderDetailPage function when API has responded
-      renderDetailPage(req, res, data);
+      // Check for successful response from API
+      if (response.statusCode == 200) {
+        // Reset coords property to be an object, setting lng and lat using values pulled from API response
+        data.coords = {
+          lng: body.coords[0],
+          lat: body.coords[1]
+        };
+        // Call callback function when API has successful responded
+        callback(req, res, data);
+      } else {
+        // If check wasn’t successful, pass error through to _showError function
+        _showError(req, res, response.statusCode);
+      }
     }
   );
 };
 
 var renderDetailPage = function (req, res, locDetail) {
-
   // Reference specific items of data as needed for render jade file 'location-info'
   res.render('location-info', {
     title: locDetail.name,
@@ -183,49 +197,65 @@ var renderDetailPage = function (req, res, locDetail) {
     },
     // Pass full locDetail data object to view, containing all details
     location: locDetail
-
-
-    //location: {
-    //  name: 'Starcups',
-    //  address: '125 High Street, Reading, RG6 1PS',
-    //  rating: 3,
-    //  facilities: ['Hot drinks', 'Food', 'Premium wifi'],
-    //  coords: {lat: 51.455041, lng: -0.9690884},
-    //  // Data for opening hours is held as an array of objects
-    //  openingTime: [{
-    //    days: 'Monday - Friday',
-    //    opening: '7:00am',
-    //    closing: '7:00pm',
-    //    closed: false
-    //  }, {
-    //    days: 'Saturday',
-    //    opening: '8:00am',
-    //    closing: '5:00pm',
-    //    closed: false
-    //  }, {
-    //    days: 'Sunday',
-    //    closed: true
-    //  }],
-    //  // Reviews are also passed to the view as array of objects
-    //  reviews: [{
-    //    author: 'Simon Holmes',
-    //    rating:5,
-    //    timestamp: '16 Jan 2016',
-    //    reviewText: 'What a great place. I can\'t say enough good things about it.'
-    //  }, {
-    //    author: 'Charlie Chaplin',
-    //    rating: 3,
-    //    timestamp: '5 Jan 2016',
-    //    reviewText: 'It was okay. Coffee wasn\'t great, but the wifi was fast.'
-    //  }]
-    //}
   });
 };
 
-/* Get 'Add review' page */
+/**
+ * Handle 'Add review' page with get request
+ * @param req
+ * @param res
+ */
 module.exports.addReview = function (req, res) {
-  res.render('location-review-form', {
-    title: 'Review Starcups on Loc8r',
-    pageHeader: { title: 'Review Starups' }
+  // Also call getLocationInfo from addReview controller, but this time pass renderReviewForm  in callback
+  getLocationInfo(req, res, function (req, res, responseData) {
+    renderReviewForm(req, res, responseData);
   });
+};
+
+// Update renderReview-Form function to accept new parameter containing data
+var renderReviewForm = function (req, res, locDetail) {
+  res.render('location-review-form', {
+    title: 'Review' + locDetail.name + ' on Loc8r',
+    pageHeader: { title: 'Review ' + locDetail.name }
+  });
+};
+
+/**
+ * Handle 'Add review' page with post request
+ * @param req
+ * @param res
+ */
+module.exports.doAddReview = function (req, res) {
+  var requestOptions, path, locationid, postdata;
+  locationid = req.params.locationid;
+
+  // Get location ID from URL to construct API URL
+  path = "/api/locations/" + locationid + "/reviews";
+
+  // Create data object to send to API using submitted form data
+  postdata = {
+    author: req.body.name,
+    rating: parseInt(req.body.rating, 10),
+    reviewText: req.body.review
+  };
+
+  // Set request options, including path, setting POST method and passing submitted form data into json parameter
+  requestOptions = {
+    url: apiOptions.server + path,
+    method: "POST",
+    json: postdata
+  };
+
+  // Make the request to API of Database
+  request(
+    requestOptions,
+    function (err, response, body) {
+      if (response.statusCode === 201) {
+        // Redirect to Details page if review was added successfully or show an error page if API returned an error
+        res.redirect('/location/' + locationid);
+      } else {
+        _showError(req, res, response.statusCode)
+      }
+    }
+  );
 };
