@@ -216,7 +216,8 @@ module.exports.addReview = function (req, res) {
 var renderReviewForm = function (req, res, locDetail) {
   res.render('location-review-form', {
     title: 'Review' + locDetail.name + ' on Loc8r',
-    pageHeader: { title: 'Review ' + locDetail.name }
+    pageHeader: { title: 'Review ' + locDetail.name },
+    error: req.query.err
   });
 };
 
@@ -253,6 +254,10 @@ module.exports.doAddReview = function (req, res) {
       if (response.statusCode === 201) {
         // Redirect to Details page if review was added successfully or show an error page if API returned an error
         res.redirect('/location/' + locationid);
+      } else if (response.statusCode === 400 && body.name && body.name === "ValidationError") {
+        // If true redirect to review form, passing an error flag in query string,
+        // 'err' is passed in query object which is contained by req object
+        res.redirect('/location/' + locationid + '/reviews/new?err=val');
       } else {
         _showError(req, res, response.statusCode)
       }

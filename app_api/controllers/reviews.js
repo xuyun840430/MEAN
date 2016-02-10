@@ -52,6 +52,8 @@ var doAddReview = function (req, res, location) {
     location.save(function (err, location) {
       var thisReview;
       if (err) {
+        // Mongoose validation errors are returned through error object following attempted save action
+        console.log(err);
         sendJsonResponse(res, 400, err);
       } else {
         // On successful save operation call function  to update average rating

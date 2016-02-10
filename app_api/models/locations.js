@@ -19,9 +19,12 @@ var openingTimeSchema = new mongoose.Schema({
 
 // Review schema
 var reviewSchema = new mongoose.Schema({
-  author: String,
-  rating: {type: Number, "default": 0, min: 0, max: 5},
-  reviewText: String,
+  // To add mongoose validation Make each of these paths a required field because if any of them are missing, a review
+  // won’t make sense. Try to save a document with required paths in mangoDB empty will trigger a database error.
+  author: {type: String, required: true},
+  rating: {type: Number, required: true, "default": 0, min: 0, max: 5},
+  reviewText: {type: String, required: true},
+  // createdOn doesn’t need to be required because Mongoose automatically populates it when a new review is created
   createdOn: {type: Date, "default": Date.now}
 });
 

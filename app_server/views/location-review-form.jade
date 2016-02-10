@@ -12,6 +12,9 @@ block content
       // Set form action to /location and method to get
       // (i.e. when "Add my review" button clicked, jump to /location site with 'get' parameters)
       form.form-horizontal(action="", method="post", role="form")
+        // Show a message to the user at the top of the form, if a validation error was bubbled up
+        -if (error == "val")
+          .alert.alert-danger(role="alert") All fields required, please try again
         // Input field for reviewer to leave name
         .form-group
           label.col-xs-10.col-sm-2.control-label(for="name") Name
