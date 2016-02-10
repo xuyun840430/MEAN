@@ -247,20 +247,26 @@ module.exports.doAddReview = function (req, res) {
     json: postdata
   };
 
-  // Make the request to API of Database
-  request(
-    requestOptions,
-    function (err, response, body) {
-      if (response.statusCode === 201) {
-        // Redirect to Details page if review was added successfully or show an error page if API returned an error
-        res.redirect('/location/' + locationid);
-      } else if (response.statusCode === 400 && body.name && body.name === "ValidationError") {
-        // If true redirect to review form, passing an error flag in query string,
-        // 'err' is passed in query object which is contained by req object
-        res.redirect('/location/' + locationid + '/reviews/new?err=val');
-      } else {
-        _showError(req, res, response.statusCode)
+  /* If any of three required data fields are falsey, then redirect to Add Review page,
+   appending query string used to display error message */
+  if (!postdata.author || !postdata.rating || !postdata.reviewText) {
+    res.redirect('/location/' + locationid + '/reviews/new?err=val');
+  } else {
+    // Make the request to API of Database
+    request(
+      requestOptions,
+      function (err, response, body) {
+        if (response.statusCode === 201) {
+          // Redirect to Details page if review was added successfully or show an error page if API returned an error
+          res.redirect('/location/' + locationid);
+        } else if (response.statusCode === 400 && body.name && body.name === "ValidationError") {
+          // If true redirect to review form, passing an error flag in query string,
+          // 'err' is passed in query object which is contained by req object
+          res.redirect('/location/' + locationid + '/reviews/new?err=val');
+        } else {
+          _showError(req, res, response.statusCode)
+        }
       }
-    }
-  );
+    );
+  }
 };
