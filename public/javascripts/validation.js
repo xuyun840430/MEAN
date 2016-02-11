@@ -3,8 +3,6 @@
  * This file adds some validation on client-side by using jQuery
  */
 
-
-
 /**
  *  Listen for submit event of review form. Ensure that the form has an
  *  ID of addReview set so that the jQuery can listen for the correct event.
