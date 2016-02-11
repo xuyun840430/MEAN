@@ -9,9 +9,9 @@ block content
       h1= pageHeader.title
   .row
     .col-xs-12.col-md-6
-      // Set form action to /location and method to get
+      // Set form with id 'addReview' action to /location and method to get
       // (i.e. when "Add my review" button clicked, jump to /location site with 'get' parameters)
-      form.form-horizontal(action="", method="post", role="form")
+      form#addReview.form-horizontal(action="", method="post", role="form")
         // Show a message to the user at the top of the form, if a validation error was bubbled up
         -if (error == "val")
           .alert.alert-danger(role="alert") All fields required, please try again
